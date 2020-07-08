@@ -7,7 +7,7 @@
     "./main.ts",
     "./telemetry.ts",
     "./logger.ts",
-    "../db/mysql.ts"
+    "./db/mysql.ts"
   ],
   "compilerOptions": {
     /* Basic Options */

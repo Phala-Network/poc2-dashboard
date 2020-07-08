@@ -6,4 +6,6 @@
 
 3 cd telemetry && tsc
 
-4 cd ../build && node main.js
+4 cp config.json build;cp db/mysql_js.js build/db
+
+5 cd build && node main.js

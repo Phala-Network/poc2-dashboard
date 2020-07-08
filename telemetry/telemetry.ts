@@ -1,7 +1,7 @@
 import ReconnectingWebSocket from "reconnecting-websocket";
 import WS from "ws";
 
-import * as Mysql from "../db/mysql";
+import * as Mysql from "./db/mysql";
 import logger from "./logger";
 
 enum TelemetryMessage {

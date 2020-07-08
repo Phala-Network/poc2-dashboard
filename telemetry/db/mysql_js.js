@@ -13,7 +13,7 @@ function execute(sql) {
 
   try {
     let result = connection.query(sql);
-    //console.log(JSON.stringify(result));
+
     return result;
   } catch (err) {
     console.log(err);
