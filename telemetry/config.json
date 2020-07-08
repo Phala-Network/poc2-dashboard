@@ -1,0 +1,8 @@
+{
+  "telemetry": {
+      "chains": [
+          "Kusama"
+      ],
+      "host": "wss://telemetry.polkadot.io/feed/"
+  }
+}

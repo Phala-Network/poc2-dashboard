@@ -1,0 +1,19 @@
+{
+  "name": "poc2-kanban",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^14.0.18",
+    "commander": "^5.1.0",
+    "reconnecting-websocket": "^4.4.0",
+    "sync-mysql": "^3.0.1",
+    "winston": "^3.3.3",
+    "ws": "^7.3.1"
+  }
+}
