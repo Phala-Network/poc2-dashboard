@@ -4,8 +4,18 @@
 
 2 Install Typescript globally: npm install typescript -g
 
-3 cd telemetry && tsc
+### 1 Telemetry
 
-4 cp config.json build;cp db/mysql_js.js build/db
+1 cd telemetry && tsc
 
-5 cd build && node main.js
+2 cp config.json build;cp db/mysql_js.js build/db
+
+3 cd build && node main.js
+
+### 2 Chain
+
+1 cd chain && tsc
+
+2 cp db/mysql_js.js build/db
+
+3 cd build && node main.js

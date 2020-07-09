@@ -23,3 +23,25 @@ CREATE TABLE `online` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9488 DEFAULT CHARSET=latin1;
 
+CREATE TABLE `gatekeeper` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `controller` varchar(64) NOT NULL,
+  `stash` varchar(64) NOT NULL DEFAULT '',
+  `is_gatekeeper` tinyint(4) NOT NULL DEFAULT '0',
+  `is_tee` tinyint(4) NOT NULL DEFAULT '0',
+  `tee_score` int(11) NOT NULL DEFAULT '0',
+  `node_eras` int(11) NOT NULL DEFAULT '0',
+  `gatekeeper_eras` int(11) NOT NULL DEFAULT '0',
+  `node_name` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `gatekeeper_era_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `era` int(11) NOT NULL,
+  `controller` varchar(64) NOT NULL,
+  `created` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;

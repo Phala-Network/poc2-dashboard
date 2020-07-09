@@ -18,13 +18,11 @@ const MemNodes = {};
 
 export default class TelemetryClient {
   private config: any;
-  //private db: Database;
   private host: string;
   private socket: ReconnectingWebSocket;
 
   constructor(config: any) {
     this.config = config;
-    //this.db = db;
     this.host = this.config.telemetry.host || DEFAULT_HOST;
 
     const options = {
