@@ -2,6 +2,7 @@ import * as fs from "fs";
 import program, { Command } from "commander";
 
 import TelemetryClient from "./telemetry";
+import * as Mysql from "./db/mysql";
 
 const loadConfig = (configPath: string) => {
   let conf = fs.readFileSync(configPath, { encoding: "utf-8" });
@@ -12,6 +13,11 @@ const loadConfig = (configPath: string) => {
 };
 
 const main = async (cmd: Command) => {
+  if (cmd.init !== undefined) {
+    Mysql.clear_db();
+    return;
+  }
+
   let config = loadConfig('config.json');
   console.log(config);
 
@@ -29,7 +35,7 @@ const catchAndQuit = async (fn: any) => {
 };
 
 program
-  //.option("--config <directory>", "The path to the config directory.", "config")
+  .option("--init", "Initialize database.", "init")
   .action((cmd: Command) => catchAndQuit(main(cmd)));
 
 program.version("1.2.21");

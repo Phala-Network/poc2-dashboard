@@ -90,33 +90,56 @@ export default class TelemetryClient {
       case TelemetryMessage.AddedNode:
         {
           const [id, nodeDetails, nodeStats, , , , location, connectedAt] = payload;
+          const nodeName = nodeDetails[0];
+          const now = new Date().getTime()/1000;
+          const report_interval = 60 * 5;
           
-          const mem = MemNodes[parseInt(id)];
-          if (mem) {
-            const details = mem[0];
-            if (details && details[0] != nodeDetails[0]) {
-              logger.info(`Node id ${id}, its name changed from ${details[0]} to ${nodeDetails[0]}`);
+          if (MemNodes[parseInt(id)]) {
+            const [details, stats, loc] = MemNodes[parseInt(id)]; 
+            if (details[0] != nodeName) {
+              logger.info(`Node id ${id}, its name changed from ${details[0]} to ${nodeName}`);
             }
           }
 
-          MemNodes[parseInt(id)] = [nodeDetails, nodeStats, location];
-          logger.info(`Reporting ${id}, ${nodeDetails[0]} ONLINE`);
+          if (MemNodes['_' + nodeName]) {
+            const [last_id, last_now, last_online] = MemNodes['_' + nodeName];
+            if (last_online == 0 && now - last_now < 10) {
+              logger.info(`Deleting ${nodeName} last OFFLINE record`);
+              Mysql.delete_last_offline_record(nodeName);
+              MemNodes['_' + nodeName] = undefined;
+            }
+            if (last_online == 1 && last_id != id) {
+              logger.info(`Duplicated id for ${nodeName}, skip`);
+              break;
+            }
+            if (last_online == 1 && now - last_now < report_interval) {
+              logger.info(`Reporting ONLINE in ${report_interval} seconds for ${nodeName}, skip`);
+              break;
+            }
+          }
+
+          logger.info(`Reporting ${id}, ${nodeName} ONLINE`);
           Mysql.insert_node(id, nodeDetails, nodeStats, location, connectedAt);
+          MemNodes[parseInt(id)] = [nodeDetails, nodeStats, location];
+          MemNodes['_' + nodeName] = [id, now, 1];
         }
         break;
       case TelemetryMessage.RemovedNode:
         {
           const id = payload;
-          
-          const [details, stat, location] = MemNodes[parseInt(id)];
+          const now = new Date().getTime()/1000;
 
-          if (!details) {
+          const mem = MemNodes[parseInt(id)];
+          if (!mem) {
             logger.info(`Unknown node with ${id} reported offline.`);
           } 
           else
           {
-            logger.info(`Reporting ${id}, ${details[0]} OFFLINE`);
-            Mysql.delete_node(details[0]);
+            const [details, stats, location] = mem;
+            const nodeName = details[0];
+            logger.info(`Reporting ${id}, ${nodeName} OFFLINE`);
+            Mysql.mark_node_offlined(nodeName);
+            MemNodes['_' + nodeName] = [id, now, 0];
           }
         }
         break;

@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@polkadot/api": "^1.23.1",
-    "@types/node": "^14.0.19",
+    "@polkadot/types": "^1.23.1",
+    "@types/node": "^14.0.20",
     "commander": "^5.1.0",
     "sync-mysql": "^3.0.1"
   }

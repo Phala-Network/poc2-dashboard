@@ -9,6 +9,11 @@ const url = 'ws://localhost:9944';
 //const url = 'wss://kusama-rpc.polkadot.io/';
 
 const main = async (cmd: Command) => {
+  if (cmd.init !== undefined) {
+    Mysql.clear_db();
+    return;
+  }
+
   const wsProvider = new WsProvider(url);
   const registry = new TypeRegistry();
   registry.register({"SequenceType": "u32"});
@@ -151,9 +156,9 @@ function calculate_node_online_time(node_name: string): number {
 }
 
 async function get_era_duration(api: ApiPromise): Promise<number> {
-  let epochDuration = await api.consts.babe.epochDuration.toNumber();
-  let blockTime = await api.consts.babe.expectedBlockTime.toNumber() / 1000;
-  let sessionPerEra = await api.consts.staking.sessionsPerEra.toNumber();
+  let epochDuration = api.consts.babe.epochDuration.toNumber();
+  let blockTime = api.consts.babe.expectedBlockTime.toNumber() / 1000;
+  let sessionPerEra = api.consts.staking.sessionsPerEra.toNumber();
 
   return epochDuration * blockTime * sessionPerEra;
 }
@@ -172,7 +177,7 @@ function sleep(ms: number) {
 }
 
 program
-  //.option("--config <directory>", "The path to the config directory.", "config")
+  .option("--init", "Initialize database.", "init")
   .action((cmd: Command) => catchAndQuit(main(cmd)));
 
 program.version("1.2.21");

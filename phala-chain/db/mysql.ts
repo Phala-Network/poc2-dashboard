@@ -92,3 +92,9 @@ export function query_online(node_name: string): any {
   const result = mysql_js.execute(sql);
   return result;
 }
+
+//
+export function clear_db() {
+  mysql_js.execute("delete from kanban.gatekeeper");
+  mysql_js.execute("delete from kanban.gatekeeper_eras");
+}
