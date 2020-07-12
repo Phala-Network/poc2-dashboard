@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import program, { Command } from "commander";
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
@@ -5,8 +6,13 @@ import { TypeRegistry } from '@polkadot/types';
 
 import * as Mysql from './db/mysql';
 
-const url = 'ws://localhost:9944';
-//const url = 'wss://kusama-rpc.polkadot.io/';
+const loadConfig = (configPath: string) => {
+  let conf = fs.readFileSync(configPath, { encoding: "utf-8" });
+  if (conf.startsWith("'")) {
+    conf = conf.slice(1).slice(0, -1);
+  }
+  return JSON.parse(conf);
+};
 
 const main = async (cmd: Command) => {
   if (cmd.init !== undefined) {
@@ -14,10 +20,14 @@ const main = async (cmd: Command) => {
     return;
   }
 
-  const wsProvider = new WsProvider(url);
+  let config = loadConfig('config.json');
+  console.log(config);
+
+  const wsProvider = new WsProvider(config.ws_rpc);
   const registry = new TypeRegistry();
   registry.register({"SequenceType": "u32"});
 
+  console.log("connecting ws rpc server(" + config.ws_rpc + ")...");
   const api = await ApiPromise.create({ provider: wsProvider, registry});
   console.log("api is ready.");
 
@@ -25,6 +35,10 @@ const main = async (cmd: Command) => {
   console.log('era duration in seconds:', era_duration);
   
   while (true) { //main loop
+
+    // node eras
+    console.log("set node eras \n");
+    set_node_eras(era_duration);
 
     const controllers = init_gatekeepers();
     console.log('controllers:', controllers);
@@ -37,9 +51,6 @@ const main = async (cmd: Command) => {
     
     // gatekeeper eras
     set_gatekeeper_eras(controllers);
-
-    // node eras
-    set_node_eras(controllers, era_duration);
 
     await sleep(60 * 1000);
   }
@@ -69,11 +80,11 @@ async function set_tee(api: ApiPromise, controllers: string[]) {
       Mysql.update_isGatekeeper(controllers[i], false);
     }
 
-    if (isTee) {
-      const machine = await api.query.phalaModule.machine(machine_id);
-      const score = parseInt(JSON.stringify(machine[1]));
-      Mysql.update_tee_score(controllers[i], score); 
-    }
+    //if (isTee) {
+    //  const machine = await api.query.phalaModule.machine(machine_id);
+    //  const score = parseInt(JSON.stringify(machine[1]));
+    //  Mysql.update_tee_score(controllers[i], score); 
+    //}
   }
 }
 
@@ -114,14 +125,12 @@ function set_gatekeeper_eras(controllers: string[]) {
   }
 }
 
-function set_node_eras(controllers: string[], era_duration: number) {
-  for (let i in controllers) {
-    let controller = controllers[i];
-    let online_eras = 0;
-    const node_name = Mysql.query_node_name_by_controller(controller);
-    if (node_name)
-      online_eras = calculate_node_online_time(node_name) / era_duration;
-    Mysql.set_node_eras(controller, online_eras);
+function set_node_eras(era_duration: number) {
+  const nodes = Mysql.query_all_nodes();
+  for (let i in nodes) {
+    const node_name = nodes[i].node_name;
+    const online_eras = calculate_node_online_time(node_name) / era_duration;
+    Mysql.set_node_eras(node_name, online_eras);
   }
 }
 
@@ -138,12 +147,13 @@ function calculate_node_online_time(node_name: string): number {
   while (true) {
     if (online) {
       while (index + 1 < total_hist && online_hist[index+1].online == 1) index++;
-      let end_second = online_hist[index].timestamp;
-      total_online_second += (start_second - end_second);
+      let end_second = online_hist[index].connect_at;
+      if (start_second - end_second > 0)
+        total_online_second += (start_second - end_second);
       online = false;
     } else {
       while (index + 1 < total_hist && online_hist[index+1].online == 0) index++;
-      start_second = online_hist[index].timestamp;
+      start_second = online_hist[index].connect_at;
       online = true;
     }
     

@@ -24,7 +24,7 @@ export function insert_node(id: number, nodeDetails: any, nodeStats: any, locati
     sql += "values(" + id.toString() + ", '" + node_name + "', '" + node_impl + "', '" + node_version + "', " + peer_count + ", '" + city + "', " + (connectedAt/1000).toString() + ", " + now.toString() +", 1)";
     let ret = mysql_js.execute(sql);
     if (ret) {
-      insert_online(node_name, 1, now);
+      insert_online(node_name, 1, connectedAt/1000, now);
     }
   } else {
     let online = result[0].online;
@@ -44,7 +44,7 @@ export function insert_node(id: number, nodeDetails: any, nodeStats: any, locati
     
     let ret = mysql_js.execute(sql);
     if (online == 0 && ret) {
-      insert_online(node_name, 1, now);
+      insert_online(node_name, 1, connectedAt/1000, now);
     }
   }
 }
@@ -55,17 +55,21 @@ export function mark_node_offlined(node_name: string) {
   let sql = "update kanban.node set online = 0, created_or_updated = " + now.toString() + " where node_name = '" + node_name + "'";
   let ret = mysql_js.execute(sql);
   if (ret) {
-    insert_online(node_name, 0, now);
+    insert_online(node_name, 0, now, now);
   }
 }
 
-function insert_online(node_name: string, online: number, now: number) {
-  let sql = "insert kanban.online(node_name, online, timestamp) values('" + node_name + "', " + online.toString() + ", " + now.toString() + ")";
+function insert_online(node_name: string, online: number, connect_at: number, now: number) {
+  let sql = "insert kanban.online(node_name, online, timestamp, connect_at) values('" + node_name + "', " + online.toString() + ", " + now.toString() + ", " + connect_at.toString() + ")";
   mysql_js.execute(sql);
 }
 
 export function clear_db() {
+  let sql = "delete from kanban.node";
+  console.log(sql);
   mysql_js.execute("delete from kanban.node");
+  sql = "delete from kanban.online";
+  console.log(sql);
   mysql_js.execute("delete from kanban.online");
 }
 

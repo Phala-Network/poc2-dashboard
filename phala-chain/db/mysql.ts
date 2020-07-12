@@ -81,20 +81,24 @@ export function update_gatekeeper_eras(controller: string) {
   mysql_js.execute(sql);
 }
 
-export function set_node_eras(controller: string, eras: number) {
-  let sql = "update kanban.gatekeeper set node_eras = " + eras.toString() +" where controller = '" + controller + "'";
+export function set_node_eras(node_name: string, eras: number) {
+  let sql = "update kanban.node set node_eras = " + eras.toString() +" where node_name = '" + node_name + "'";
   mysql_js.execute(sql);
 }
 
 //online
 export function query_online(node_name: string): any {
-  const sql = "select online, timestamp from kanban.online where node_name = '" + node_name + "' order by timestamp desc";
+  const sql = "select online, connect_at, timestamp from kanban.online where node_name = '" + node_name + "' order by id desc";
   const result = mysql_js.execute(sql);
   return result;
 }
 
 //
 export function clear_db() {
-  mysql_js.execute("delete from kanban.gatekeeper");
-  mysql_js.execute("delete from kanban.gatekeeper_eras");
+  let sql = "delete from kanban.gatekeeper";
+  console.log(sql);
+  mysql_js.execute(sql);
+  sql = "delete from kanban.gatekeeper_era_history"; 
+  console.log(sql);
+  mysql_js.execute(sql);
 }

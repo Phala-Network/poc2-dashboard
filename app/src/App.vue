@@ -15,14 +15,6 @@
     </div>
 
     <div class="footer">
-      <div class="footer-social">
-        <a href="https://t.me/phala.network" target="_blank" class="social">
-          <img src="@/assets/img/telegram.png" alt="" class="social-icon">
-        </a>
-        <a href="https://twitter.com/phala_network" target="_blank" class="social">
-          <img src="@/assets/img/twitter.png" alt="" class="social-icon">
-        </a>
-      </div>
       <div class="footer-copyright">COPYRIGHT © 2020 PHALA.LTD ALL RIGHTS RESERVED. - Made with love by Phala.LTD</div>
     </div>
   </div>
@@ -65,10 +57,10 @@ html, body {
   .container {
     display: flex;
     width: 100%;
-    max-width: 1110px;
+    max-width: 1280px;
     margin: 0 auto 20px;
-    padding-top: 130px;
-    min-height: calc(150vh - 241px);
+    padding-top: 100px;
+    min-height: calc(100vh - 200px);
     circle {
       -webkit-transition: stroke-dasharray .25s;
       transition: stroke-dasharray .25s;
@@ -124,24 +116,7 @@ html, body {
   box-sizing: border-box;
   margin-top: 30px;
   padding: 15px 0;
-  background:linear-gradient(180deg, #050308 0%,rgb(70, 71, 71) 100%);
+  background:linear-gradient(180deg, #050308 0%,rgb(34, 36, 36) 100%);
   border-top: 3px solid #1f5f35;
-
-  .footer-social {
-    display: flex;
-    justify-content: center;
-
-    .social {
-      margin: 0 30px;
-    }
-  }
-
-  .footer-copyright {
-    margin: 8px 0 0;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 400;
-    color: #047727;
-  }
 }
 </style>
