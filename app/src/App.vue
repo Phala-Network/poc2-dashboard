@@ -114,9 +114,10 @@ html, body {
   width: 100%;
   height: 80px;
   box-sizing: border-box;
-  margin-top: 30px;
+  margin-top: 20px;
   padding: 15px 0;
   background:linear-gradient(180deg, #050308 0%,rgb(34, 36, 36) 100%);
   border-top: 3px solid #1f5f35;
+  text-align: center;
 }
 </style>

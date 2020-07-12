@@ -1,6 +1,12 @@
 <template>
   <div class="dashboard">
     <section class="section-data">
+      <div class="th">
+        <span class="th-tee"><input type="checkbox" v-model="disp_tee">only tee</span>
+        <span class="th-gatekeeper"><input type="checkbox" v-model="disp_gatekeeper">only gatekeeper</span>
+        <span class="th-status"><input type="checkbox" v-model="disp_online" @click="set_online">only online</span>
+        <span class="th-status"><input type="checkbox" v-model="disp_offline" @click="set_offline">only offline</span>
+      </div>
       <div class="data-header">
         <div class="data-tab tab-status">Status</div>
         <div class="data-tab tab-role">Role</div>
@@ -14,13 +20,6 @@
       </div>
 
       <div class="data-table">
-        <div class="th">
-          <div class="th-tee"><input type="checkbox" v-model="disp_tee">only tee</div>
-          <div class="th-gatekeeper"><input type="checkbox" v-model="disp_gatekeeper">only gatekeeper</div>
-          <div class="th-status"><input type="checkbox" v-model="disp_online" @click="set_online">only online</div>
-          <div class="th-status"><input type="checkbox" v-model="disp_offline" @click="set_offline">only offline</div>
-          <div class="th-empty">&nbsp;</div>
-        </div>
         <div class="tbody">
           <div v-for="item in nodeData" v-bind:key="item.id" class="tr">
             <div class="td td-status">{{ item.online === 1 ? "Online":"Offline" }}</div>
@@ -169,7 +168,7 @@ export default {
 
 ::-webkit-scrollbar-thumb{
   border-radius:5px;
-  background-color: #b48503;
+  background-color: rgb(4, 170, 45);
 }
 </style>
 <style lang="scss" scoped>
@@ -187,6 +186,28 @@ export default {
     border-radius: 8px;
     border: 1px solid rgba(80, 70, 128, 0.5);
 
+    .th {
+      width: 100%;
+      display: flex;
+      height: 40px;
+      line-height: 40px;
+      background-color: #b48503;
+      color: #f9fafa;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .th-tee {
+      width: 100px;
+    }
+
+    .th-gatekeeper {
+      width: 150px;
+    }
+
+    .th-status {
+      width: 120px;
+    }
+
     .data-header {
       position: relative;
       display: flex;
@@ -197,7 +218,6 @@ export default {
       background-position: -11px -11px;
       background-size: 346px 20px;
       background:linear-gradient(180deg,rgb(2, 109, 47) 0%,rgb(4, 170, 45) 100%);
-      border-radius: 8px 8px 0 0;
       .data-tab {
         font-size: 13px;
         font-weight: 400;
@@ -249,29 +269,9 @@ export default {
         overflow-y: scroll;
       }
 
-      .tr,
-      .th {
+      .tr {
         width: 100%;
         display: flex;
-      }
-
-      .th {
-        height: 40px;
-        line-height: 40px;
-        background-color: #b48503;
-        color: #f9fafa;
-      }
-
-      .th-tee {
-        width: 100px;
-      }
-
-      .th-gatekeeper {
-        width: 150px;
-      }
-
-      .th-status {
-        width: 120px;
       }
 
       .tr {
