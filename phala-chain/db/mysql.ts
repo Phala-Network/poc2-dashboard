@@ -1,4 +1,4 @@
-const mysql_js: any = require('./mysql_js.js');
+const mysql_js: any = require("./mysql_js.js");
 
 export function query_all_nodes(): any {
   const sql = "select * from kanban.node";
@@ -6,12 +6,12 @@ export function query_all_nodes(): any {
 }
 
 export function query_by_node_name(node_name: string): any {
-  const sql = "select * from kanban.node where node_name = '" + node_name + "'";
+  const sql = "select * from kanban.node where node_name = \"" + node_name + "\"";
   return mysql_js.execute(sql);
 }
 
 export function query_gatekeeper(controller: string): any {
-  const sql = "select * from kanban.gatekeeper where controller = '" + controller + "'";
+  const sql = "select * from kanban.gatekeeper where controller = \"" + controller + "\"";
   return mysql_js.execute(sql);
 }
 
@@ -19,46 +19,46 @@ export function insert_gatekeeper(node_name: string, controller: string) {
   let result = query_gatekeeper(controller);
   let deleted = false;
   if (result.length > 0 && result[0].node_name != node_name) {
-    mysql_js.execute("delete from kanban.gatekeeper where controller = '" + controller + "'");
+    mysql_js.execute("delete from kanban.gatekeeper where controller = \"" + controller + "\"");
     deleted = true;
   }
 
   if (result.length == 0 || deleted) {
-    const sql = "insert kanban.gatekeeper(node_name, controller) values('" + node_name + "', '" + controller +"')";
+    const sql = "insert kanban.gatekeeper(node_name, controller) values(\"" + node_name + "\", \"" + controller +"\")";
     mysql_js.execute(sql);
   }
 }
 
 export function update_stash(controller: string, stash: string) {
-  const sql = "update kanban.gatekeeper set stash = '" + stash + "' where controller = '" + controller + "'";
+  const sql = "update kanban.gatekeeper set stash = \"" + stash + "\" where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 export function update_isTee(controller: string, isTee: boolean) {
-  const sql = "update kanban.gatekeeper set is_tee = " + (isTee?1:0).toString() + " where controller = '" + controller + "'";
+  const sql = "update kanban.gatekeeper set is_tee = " + (isTee?1:0).toString() + " where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 export function update_tee_score(controller: string, score: number) {
-  const sql = "update kanban.gatekeeper set tee_score = " + score.toString() + " where controller = '" + controller + "'";
+  const sql = "update kanban.gatekeeper set tee_score = " + score.toString() + " where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 export function update_isGatekeeper(controller: string, isGatekeeper: boolean) {
-  const sql = "update kanban.gatekeeper set is_gatekeeper = " + (isGatekeeper?1:0).toString() + " where controller = '" + controller + "'";
+  const sql = "update kanban.gatekeeper set is_gatekeeper = " + (isGatekeeper?1:0).toString() + " where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 //gatekeeper
 export function query_gatekeeper_era(era: number, controller: string): any {
-  const sql = "select * from kanban.gatekeeper_era_history where era = "+ era.toString() + " and controller = '" + controller + "'";
+  const sql = "select * from kanban.gatekeeper_era_history where era = "+ era.toString() + " and controller = \"" + controller + "\"";
   return mysql_js.execute(sql);
 }
 
 export function insert_gatekeeper_era(era: number, controller: string): boolean {
   const result = query_gatekeeper_era(era, controller);
   if (result.length == 0) {
-    const sql = "insert kanban.gatekeeper_era_history(era, controller) values(" + era.toString() + ", '" + controller + "')";
+    const sql = "insert kanban.gatekeeper_era_history(era, controller) values(" + era.toString() + ", \"" + controller + "\")";
     mysql_js.execute(sql);
     return true;
   }
@@ -67,28 +67,28 @@ export function insert_gatekeeper_era(era: number, controller: string): boolean 
 }
 
 export function query_node_name_by_controller(controller: string): string {
-  let sql = "select node_name from kanban.gatekeeper where controller = '" + controller + "'";
+  let sql = "select node_name from kanban.gatekeeper where controller = \"" + controller + "\"";
   let result = mysql_js.execute(sql);
   if (result && result.length > 0) return result[0].node_name;
   return null;
 }
 
 export function update_gatekeeper_eras(controller: string) {
-  let sql = "select count(*) as count from kanban.gatekeeper_era_history where controller = '" + controller + "'";
+  let sql = "select count(*) as count from kanban.gatekeeper_era_history where controller = \"" + controller + "\"";
   const result = mysql_js.execute(sql);
 
-  sql = "update kanban.gatekeeper set gatekeeper_eras = " + result[0].count.toString() +" where controller = '" + controller + "'";
+  sql = "update kanban.gatekeeper set gatekeeper_eras = " + result[0].count.toString() +" where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 export function set_node_eras(node_name: string, eras: number) {
-  let sql = "update kanban.node set node_eras = " + eras.toString() +" where node_name = '" + node_name + "'";
+  let sql = "update kanban.node set node_eras = " + eras.toString() +" where node_name = \"" + node_name + "\"";
   mysql_js.execute(sql);
 }
 
 //online
 export function query_online(node_name: string): any {
-  const sql = "select online, connect_at, timestamp from kanban.online where node_name = '" + node_name + "' order by id desc";
+  const sql = "select online, connect_at, timestamp from kanban.online where node_name = \"" + node_name + "\" order by id desc";
   const result = mysql_js.execute(sql);
   return result;
 }

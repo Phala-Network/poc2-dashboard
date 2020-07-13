@@ -157,4 +157,9 @@ export default class TelemetryClient {
       }
     }
   }
+
+  async close() {
+    logger.info("Telemetry client will close connection...");
+    this.socket.close();
+  }
 }

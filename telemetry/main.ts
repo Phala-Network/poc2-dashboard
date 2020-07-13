@@ -21,8 +21,16 @@ const main = async (cmd: Command) => {
   let config = loadConfig('config.json');
   console.log(config);
 
-  const telemetry = new TelemetryClient(config);
-  telemetry.start();
+  while (true) {
+    const telemetry = new TelemetryClient(config);
+    telemetry.start();
+    await sleep(10 * 60 * 1000);
+    telemetry.close();
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise( resolve => setTimeout(resolve, ms) );
 }
 
 const catchAndQuit = async (fn: any) => {
