@@ -22,10 +22,10 @@
       <div class="data-table">
         <div class="tbody">
           <div v-for="item in filteredData" v-bind:key="item.id" class="tr">
-            <div class="td td-status">{{ item.online === 1 ? "Online":"Offline" }}</div>
+            <div class="td td-status" v-bind:class="{ 'td td-status-offline': item.online === 0 }">{{ item.online === 1 ? "Online":"Offline" }}</div>
             <div class="td td-role">
               <span v-if="item.is_gatekeeper">{{ "Gk" }}</span>
-              <span v-else-if="item.is_tee">{{ "TEE" }}</span>
+              <span v-else-if="item.is_tee && !item.is_gatekeeper">{{ "TEE" }}</span>
               <span v-else>{{ "Node" }}</span>
             </div>
             <div class="td td-name">{{ item.node_name }}</div>
@@ -59,11 +59,17 @@ export default {
   methods: {
     set_tee: function () {
       this.disp_tee = !this.disp_tee
+      if (this.disp_tee) {
+        this.disp_gatekeeper = false
+      }
       this.filter_data()
     },
 
     set_gatekeeper: function () {
       this.disp_gatekeeper = !this.disp_gatekeeper
+      if (this.disp_gatekeeper) {
+        this.disp_tee = false
+      }
       this.filter_data()
     },
 
@@ -102,7 +108,7 @@ export default {
 
       if (that.disp_tee) {
         for (let i in data) {
-          if (data[i].is_tee && data[i].is_tee === 1) {
+          if (data[i].is_tee && data[i].is_tee === 1 && (!data[i].is_gatekeeper || (data[i].is_gatekeeper && data[i].is_gatekeeper === 0))) {
             tmp.push(data[i])
           }
         }
@@ -142,7 +148,7 @@ export default {
 
   mounted () {
     const that = this
-    const test = true
+    const test = false
     const fetchData = function () {
       if (!test) {
         that.$http.get('/nodes').then((res) => {
@@ -156,7 +162,7 @@ export default {
         const node1 = JSON.parse('{"id":8877,"node_id":0,"node_name":"EPC-8","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Piscataway","peer_count":25,"timestamp":1593741094,"online":1,"created_or_updated":1594350191,"controller":"5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY","stash":"5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY","is_tee":1,"tee_score":0,"is_gatekeeper":1,"gatekeeper_eras":1,"node_eras":0}')
         const node2 = JSON.parse('{"id":8878,"node_id":1,"node_name":"P2P_ORG - P2P Validator 41","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Helsinki","peer_count":50,"timestamp":1593690597,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
         const node3 = JSON.parse('{"id":8879,"node_id":2,"node_name":"Huobi Wallet","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"Tokyo","peer_count":25,"timestamp":1592465823,"online":0,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
-        const node4 = JSON.parse('{"id":8880,"node_id":253,"node_name":"novanode","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"","peer_count":21,"timestamp":1594349499,"online":0,"created_or_updated":1594351976,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
+        const node4 = JSON.parse('{"id":8880,"node_id":253,"node_name":"novanode","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"","peer_count":21,"timestamp":1594349499,"online":0,"created_or_updated":1594351976,"controller":null,"stash":null,"is_tee":1,"tee_score":null,"is_gatekeeper":0,"gatekeeper_eras":null,"node_eras":null}')
         const node5 = JSON.parse('{"id":8881,"node_id":4,"node_name":"?????????? ?????? 02","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Toronto","peer_count":88,"timestamp":1594297810,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
         data.push(node1)
         data.push(node2)
@@ -309,6 +315,12 @@ export default {
         .td-status {
           width: 60px;
           flex: none;
+        }
+
+        .td-status-offline {
+          width: 60px;
+          flex: none;
+          color: rgb(226, 76, 76);
         }
 
         .td-role {
