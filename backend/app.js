@@ -32,7 +32,7 @@ app.get("/nodes", function(req, res){
         };
         
         o = {'status':'ok', 'result':results};
-        console.log(JSON.stringify(o));
+        
         res.send(JSON.stringify(o));
     })
     connection.end();

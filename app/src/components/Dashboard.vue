@@ -2,8 +2,8 @@
   <div class="dashboard">
     <section class="section-data">
       <div class="th">
-        <span class="th-tee"><input type="checkbox" v-model="disp_tee">only tee</span>
-        <span class="th-gatekeeper"><input type="checkbox" v-model="disp_gatekeeper">only gatekeeper</span>
+        <span class="th-tee"><input type="checkbox" v-model="disp_tee" @click="set_tee">only tee</span>
+        <span class="th-gatekeeper"><input type="checkbox" v-model="disp_gatekeeper" @click="set_gatekeeper">only gatekeeper</span>
         <span class="th-status"><input type="checkbox" v-model="disp_online" @click="set_online">only online</span>
         <span class="th-status"><input type="checkbox" v-model="disp_offline" @click="set_offline">only offline</span>
       </div>
@@ -21,7 +21,7 @@
 
       <div class="data-table">
         <div class="tbody">
-          <div v-for="item in nodeData" v-bind:key="item.id" class="tr">
+          <div v-for="item in filteredData" v-bind:key="item.id" class="tr">
             <div class="td td-status">{{ item.online === 1 ? "Online":"Offline" }}</div>
             <div class="td td-role">
               <span v-if="item.is_gatekeeper">{{ "Gk" }}</span>
@@ -48,6 +48,7 @@ export default {
   data () {
     return {
       nodeData: [],
+      filteredData: [],
       disp_tee: false,
       disp_gatekeeper: false,
       disp_online: false,
@@ -56,11 +57,22 @@ export default {
   },
 
   methods: {
+    set_tee: function () {
+      this.disp_tee = !this.disp_tee
+      this.filter_data()
+    },
+
+    set_gatekeeper: function () {
+      this.disp_gatekeeper = !this.disp_gatekeeper
+      this.filter_data()
+    },
+
     set_online: function () {
       this.disp_online = !this.disp_online
       if (this.disp_online) {
         this.disp_offline = false
       }
+      this.filter_data()
     },
 
     set_offline: function () {
@@ -68,12 +80,14 @@ export default {
       if (this.disp_offline) {
         this.disp_online = false
       }
+      this.filter_data()
     },
 
-    process_data: function (data) {
+    filter_data: function () {
       let that = this
+      let data = that.nodeData
 
-      that.nodeData = []
+      that.filteredData = []
       let tmp = []
       if (that.disp_gatekeeper) {
         for (let i in data) {
@@ -118,7 +132,7 @@ export default {
         data = tmp
       }
 
-      that.nodeData = data
+      that.filteredData = data
     },
 
     get_date_str: function (timestamp) {
@@ -133,7 +147,8 @@ export default {
       if (!test) {
         that.$http.get('/nodes').then((res) => {
           if (res.data.status === 'ok') {
-            that.process_data(res.data.result)
+            that.nodeData = res.data.result
+            that.filter_data()
           }
         })
       } else {
@@ -152,11 +167,12 @@ export default {
           data.push(node1)
         }
 
-        that.process_data(data)
+        that.nodeData = data
+        that.filter_data()
       }
     }
     fetchData()
-    window.setInterval(fetchData, 10000)
+    window.setInterval(fetchData, 60 * 1000)
   }
 }
 </script>
