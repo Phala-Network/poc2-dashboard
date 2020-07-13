@@ -151,9 +151,19 @@ export default {
     const test = false
     const fetchData = function () {
       if (!test) {
+        const now = new Date().getTime() / 1000
         that.$http.get('/nodes').then((res) => {
           if (res.data.status === 'ok') {
-            that.nodeData = res.data.result
+            // filter nodes in offline for 1 era (6 hours)
+            const tmp = res.data.result
+            that.nodeData = []
+            for (let i in tmp) {
+              if (tmp[i].online === 0 && now - tmp[i].created_or_updated > 6 * 3600) {
+                continue
+              }
+              that.nodeData.push(tmp[i])
+            }
+
             that.filter_data()
           }
         })

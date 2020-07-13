@@ -86,13 +86,15 @@ export default class TelemetryClient {
     const { action, payload } = message;
     //console.log('message:', message);
 
+    const report_interval = 60 * 5;
+    const status_changed_interval = 60 * 1;
+
     switch (action) {
       case TelemetryMessage.AddedNode:
         {
           const [id, nodeDetails, nodeStats, , , , location, connectedAt] = payload;
           const nodeName = nodeDetails[0];
           const now = new Date().getTime()/1000;
-          const report_interval = 60 * 5;
           
           if (MemNodes[parseInt(id)]) {
             const [details, stats, loc] = MemNodes[parseInt(id)]; 
@@ -103,10 +105,11 @@ export default class TelemetryClient {
 
           if (MemNodes['_' + nodeName]) {
             const [last_id, last_now, last_online] = MemNodes['_' + nodeName];
-            if (last_online == 0 && now - last_now < 10) {
+            if (last_online == 0 && now - last_now < status_changed_interval) {
               logger.info(`Deleting ${nodeName} last OFFLINE record`);
               Mysql.delete_last_offline_record(nodeName);
               MemNodes['_' + nodeName] = undefined;
+              break;
             }
             if (last_online == 1 && last_id != id) {
               logger.info(`Duplicated id for ${nodeName}, skip`);
@@ -119,7 +122,7 @@ export default class TelemetryClient {
           }
 
           logger.info(`Reporting ${id}, ${nodeName} ONLINE`);
-          Mysql.insert_node(id, nodeDetails, nodeStats, location, connectedAt);
+          Mysql.insert_node(id, nodeDetails, nodeStats, location, connectedAt, now);
           MemNodes[parseInt(id)] = [nodeDetails, nodeStats, location];
           MemNodes['_' + nodeName] = [id, now, 1];
         }
@@ -138,6 +141,14 @@ export default class TelemetryClient {
             const [details, stats, location] = mem;
             const nodeName = details[0];
             logger.info(`Reporting ${id}, ${nodeName} OFFLINE`);
+            if (MemNodes['_' + nodeName]) {
+              const [last_id, last_now, last_online] = MemNodes['_' + nodeName];
+              if (last_online == 1 && now - last_now < status_changed_interval) {
+                logger.info(`Deleting ${nodeName} last ONLINE record`);
+                Mysql.delete_last_online_record(nodeName);
+                break;
+              }
+            }
             Mysql.mark_node_offlined(nodeName);
             MemNodes['_' + nodeName] = [id, now, 0];
           }

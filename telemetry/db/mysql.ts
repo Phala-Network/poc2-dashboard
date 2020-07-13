@@ -5,7 +5,7 @@ export function query(node_name: string): any {
   return mysql_js.execute(sql);
 }
 
-export function insert_node(id: number, nodeDetails: any, nodeStats: any, location: any, connectedAt: number) {
+export function insert_node(id: number, nodeDetails: any, nodeStats: any, location: any, connectedAt: number, now: number) {
   let [ node_name, node_impl, node_version ] = nodeDetails;
   let [ peer_count] = nodeStats;
   let city: any;
@@ -13,8 +13,7 @@ export function insert_node(id: number, nodeDetails: any, nodeStats: any, locati
     [, , city] = location;
   else 
     city = "";
-  let now = new Date().getTime()/1000;
-
+  
   let result = query(node_name);
 
   let sql: any;
@@ -59,9 +58,12 @@ export function mark_node_offlined(node_name: string) {
   }
 }
 
-function insert_online(node_name: string, online: number, connect_at: number, now: number) {
-  let sql = "insert kanban.online(node_name, online, timestamp, connect_at) values(\"" + node_name + "\", " + online.toString() + ", " + now.toString() + ", " + connect_at.toString() + ")";
-  mysql_js.execute(sql);
+function insert_online(node_name: string, status: number, connect_at: number, now: number) {
+  let result = mysql_js.execute("select * from kanban.online where node_name = \"" + node_name + "\" order by id desc");
+  if (result.length == 0 && status == 1 || result[0].online != status) {
+    let sql = "insert kanban.online(node_name, online, timestamp, connect_at) values(\"" + node_name + "\", " + status.toString() + ", " + now.toString() + ", " + connect_at.toString() + ")";
+    mysql_js.execute(sql);
+  }
 }
 
 export function clear_db() {
@@ -74,8 +76,15 @@ export function clear_db() {
 }
 
 export function delete_last_offline_record(node_name: string) {
-  let result = mysql_js.execute("select * from kanban.online order by timestamp desc");
+  let result = mysql_js.execute("select * from kanban.online where node_name = \"" + node_name + "\" order by id desc");
   if (result.length > 0 && result[0].online == 0) {
+    mysql_js.execute("delete from kanban.online where id=" + result[0].id);
+  }
+}
+
+export function delete_last_online_record(node_name: string) {
+  let result = mysql_js.execute("select * from kanban.online where node_name = \"" + node_name + "\" order by id desc");
+  if (result.length > 1 && result[0].online == 1) {
     mysql_js.execute("delete from kanban.online where id=" + result[0].id);
   }
 }
