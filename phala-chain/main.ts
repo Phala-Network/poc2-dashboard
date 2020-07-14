@@ -62,7 +62,7 @@ function init_gatekeepers(): string[] {
   for (let i in nodes) {
     let node_name = nodes[i].node_name;
     let controller = node_name.split('|').slice(-1)[0].trim();
-    if (controller != node_name.split('|')[0].trim() && controller.length == 48) {
+    if (controller != node_name.split('|')[0].trim() && controller.length == 48 && controller.startsWith('5')) {
       Mysql.insert_gatekeeper(node_name, controller);
       controllers.push(controller);
     }
