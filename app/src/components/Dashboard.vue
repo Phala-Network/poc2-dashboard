@@ -15,8 +15,8 @@
         <div class="data-tab tab-city">City</div>
         <div class="data-tab tab-era">Node Eras</div>
         <div class="data-tab tab-era">Gatekeeper Eras</div>
+        <div class="data-tab tab-era">Slashed Eras</div>
         <div class="data-tab tab-time">Connect at</div>
-        <div class="data-tab tab-rewards">Rewards</div>
       </div>
 
       <div class="data-table">
@@ -33,8 +33,8 @@
             <div class="td td-city">{{ item.city }}</div>
             <div class="td td-num">{{ item.node_eras?item.node_eras:0 }}</div>
             <div class="td td-num">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</div>
+            <div class="td td-num">{{ item.slash_eras?item.slash_eras:0 }}</div>
             <div class="td td-timestamp">{{ get_date_str(item.timestamp) }}</div>
-            <div class="td td-rewards">0</div>
           </div>
         </div>
       </div>
@@ -180,11 +180,11 @@ export default {
         })
       } else {
         let data = []
-        const node1 = JSON.parse('{"id":8877,"node_id":0,"node_name":"EPC-8 | 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Piscataway","peer_count":25,"timestamp":1593741094,"online":1,"created_or_updated":1594350191,"controller":"5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY","stash":"5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY","is_tee":1,"tee_score":0,"is_gatekeeper":1,"gatekeeper_eras":1,"node_eras":0}')
-        const node2 = JSON.parse('{"id":8878,"node_id":1,"node_name":"P2P_ORG - P2P Validator 41","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Helsinki","peer_count":50,"timestamp":1593690597,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
-        const node3 = JSON.parse('{"id":8879,"node_id":2,"node_name":"Huobi Wallet","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"Tokyo","peer_count":25,"timestamp":1592465823,"online":0,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
-        const node4 = JSON.parse('{"id":8880,"node_id":253,"node_name":"novanode","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"","peer_count":21,"timestamp":1594349499,"online":0,"created_or_updated":1594351976,"controller":null,"stash":null,"is_tee":1,"tee_score":null,"is_gatekeeper":0,"gatekeeper_eras":null,"node_eras":null}')
-        const node5 = JSON.parse('{"id":8881,"node_id":4,"node_name":"?????????? ?????? 02","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Toronto","peer_count":88,"timestamp":1594297810,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"tee_score":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
+        const node1 = JSON.parse('{"id":8877,"node_id":0,"node_name":"EPC-8 | 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Piscataway","peer_count":25,"timestamp":1593741094,"online":1,"created_or_updated":1594350191,"controller":"5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY","stash":"5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY","is_tee":1,"slash_eras":3,"is_gatekeeper":1,"gatekeeper_eras":1,"node_eras":0}')
+        const node2 = JSON.parse('{"id":8878,"node_id":1,"node_name":"P2P_ORG - P2P Validator 41","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Helsinki","peer_count":50,"timestamp":1593690597,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"slash_eras":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
+        const node3 = JSON.parse('{"id":8879,"node_id":2,"node_name":"Huobi Wallet","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"Tokyo","peer_count":25,"timestamp":1592465823,"online":0,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"slash_eras":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
+        const node4 = JSON.parse('{"id":8880,"node_id":253,"node_name":"novanode","node_impl":"Parity Polkadot","node_version":"0.8.10-183848b6-x86_64-linux-gnu","city":"","peer_count":21,"timestamp":1594349499,"online":0,"created_or_updated":1594351976,"controller":null,"stash":null,"is_tee":1,"slash_eras":null,"is_gatekeeper":0,"gatekeeper_eras":null,"node_eras":null}')
+        const node5 = JSON.parse('{"id":8881,"node_id":4,"node_name":"?????????? ?????? 02","node_impl":"Parity Polkadot","node_version":"0.8.13-90d5dbe5-x86_64-linux-gnu","city":"Toronto","peer_count":88,"timestamp":1594297810,"online":1,"created_or_updated":1594350191,"controller":null,"stash":null,"is_tee":null,"slash_eras":null,"is_gatekeeper":null,"gatekeeper_eras":null,"node_eras":null}')
         data.push(node1)
         data.push(node2)
         data.push(node3)
@@ -285,12 +285,12 @@ export default {
       }
 
       .tab-era {
-        width: 120px;
+        width: 115px;
         word-wrap: false;
       }
 
       .tab-city {
-        width: 150px;
+        width: 140px;
       }
 
       .tab-time {
@@ -378,7 +378,7 @@ export default {
 
         .td-num {
           text-align: center;
-          width:120px;
+          width:105px;
           flex: none;
         }
 

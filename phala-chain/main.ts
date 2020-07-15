@@ -47,12 +47,16 @@ const main = async (cmd: Command) => {
     await set_tee(api, controllers);
 
     // set stash and gatekeeper
-    await set_gatekeeper(api, controllers);
-    
-    // gatekeeper eras
-    set_gatekeeper_eras(controllers);
+    const current_era = await set_gatekeeper(api, controllers);
+    console.log('current era:', current_era);
 
-    await sleep(60 * 1000);
+    // gatekeeper slash
+    set_gatekeeper_slash(api, controllers, current_era);
+
+    // set gatekeeper eras and slash
+    set_gatekeeper_eras_and_slash(controllers);
+
+    await sleep(5 * 60 * 1000);
   }
 }
 
@@ -88,7 +92,7 @@ async function set_tee(api: ApiPromise, controllers: string[]) {
   }
 }
 
-async function set_gatekeeper(api: ApiPromise, controllers: string[]) {
+async function set_gatekeeper(api: ApiPromise, controllers: string[]): Promise<number> {
   // update stash
   let stashes: any = [];
   let stash_dict: any = {};
@@ -103,7 +107,7 @@ async function set_gatekeeper(api: ApiPromise, controllers: string[]) {
     }
   }
 
-  if (stashes.length == 0) return;
+  if (stashes.length == 0) return 0;
 
   // gatekeeper
   const staking_overview = await api.derive.staking.overview();
@@ -114,14 +118,29 @@ async function set_gatekeeper(api: ApiPromise, controllers: string[]) {
     let controller = stash_dict[stashes[i].toString()];
     Mysql.update_isGatekeeper(controller, isGateKeepr);
     if (isGateKeepr) {
-      Mysql.insert_gatekeeper_era(current_era, controller);
+      Mysql.insert_gatekeeper_era(current_era, controller, stashes[i]);
+    }
+  }
+
+  return current_era;
+}
+
+async function set_gatekeeper_slash(api: ApiPromise, controllers: string[], current_era) {
+  for (let i in controllers) {
+    let result = Mysql.gatekeeper_need_query_slash(controllers[i], current_era);
+    if (result && result.length > 0) {
+      for (let i in result) {
+        let slash = await api.query.staking.validatorSlashInEra(result[i].era, result[i].stash);
+        let flag = slash && slash.isSome ? 1:0;
+        Mysql.update_gatekeeper_slash(result[i].id, flag);   
+      }
     }
   }
 }
 
-function set_gatekeeper_eras(controllers: string[]) {
+function set_gatekeeper_eras_and_slash(controllers: string[]) {
   for (let i in controllers) {
-    Mysql.update_gatekeeper_eras(controllers[i]);
+    Mysql.update_gatekeeper_eras_and_slash(controllers[i]);
   }
 }
 

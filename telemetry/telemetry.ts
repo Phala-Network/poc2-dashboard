@@ -87,7 +87,7 @@ export default class TelemetryClient {
     //console.log('message:', message);
 
     const report_interval = 60 * 5;
-    const status_changed_interval = 60 * 1;
+    const status_changed_interval = 60 * 5;
 
     switch (action) {
       case TelemetryMessage.AddedNode:

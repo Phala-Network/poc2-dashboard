@@ -55,10 +55,10 @@ export function query_gatekeeper_era(era: number, controller: string): any {
   return mysql_js.execute(sql);
 }
 
-export function insert_gatekeeper_era(era: number, controller: string): boolean {
+export function insert_gatekeeper_era(era: number, controller: string, stash: string): boolean {
   const result = query_gatekeeper_era(era, controller);
   if (result.length == 0) {
-    const sql = "insert kanban.gatekeeper_era_history(era, controller) values(" + era.toString() + ", \"" + controller + "\")";
+    const sql = "insert kanban.gatekeeper_era_history(era, controller, stash) values(" + era.toString() + ", \"" + controller + "\", \"" + stash + "\")";
     mysql_js.execute(sql);
     return true;
   }
@@ -73,16 +73,29 @@ export function query_node_name_by_controller(controller: string): string {
   return null;
 }
 
-export function update_gatekeeper_eras(controller: string) {
+export function update_gatekeeper_eras_and_slash(controller: string) {
   let sql = "select count(*) as count from kanban.gatekeeper_era_history where controller = \"" + controller + "\"";
   const result = mysql_js.execute(sql);
 
-  sql = "update kanban.gatekeeper set gatekeeper_eras = " + result[0].count.toString() +" where controller = \"" + controller + "\"";
+  sql = "select count(*) as count from kanban.gatekeeper_era_history where controller = \"" + controller + "\" and slash > 0";
+  const result1 = mysql_js.execute(sql);
+
+  sql = "update kanban.gatekeeper set gatekeeper_eras = " + result[0].count.toString() +", slash_eras = " + result1[0].count.toString() +" where controller = \"" + controller + "\"";
   mysql_js.execute(sql);
 }
 
 export function set_node_eras(node_name: string, eras: number) {
   let sql = "update kanban.node set node_eras = " + eras.toString() +" where node_name = \"" + node_name + "\"";
+  mysql_js.execute(sql);
+}
+
+export function gatekeeper_need_query_slash(controller: string, current_era: number): any {
+  let sql = "SELECT * FROM kanban.gatekeeper_era_history where controller = \"" + controller +"\" and slash = -1 and era <" + current_era.toString();
+  return mysql_js.execute(sql);
+}
+
+export function update_gatekeeper_slash(id: number, flag: number) {
+  let sql = "update kanban.gatekeeper_era_history set slash = " + flag.toString() + " where id = " + id.toString();
   mysql_js.execute(sql);
 }
 

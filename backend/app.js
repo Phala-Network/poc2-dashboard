@@ -18,7 +18,7 @@ app.get("/", function(req, res){
 
 app.get("/nodes", function(req, res){
     console.log(req.url);
-    let sql = "SELECT a.*, b.controller, b.stash, b.is_tee, b.is_gatekeeper, b.gatekeeper_eras FROM kanban.node a"
+    let sql = "SELECT a.*, b.controller, b.stash, b.is_tee, b.is_gatekeeper, b.gatekeeper_eras, b.slash_eras FROM kanban.node a"
     sql += " left join kanban.gatekeeper b on a.node_name = b.node_name";
 
     const connection = mysql.createConnection(param);

@@ -1,3 +1,3 @@
 {
-  "ws_rpc": "wss://kusama-rpc.polkadot.io/" 
+  "ws_rpc": "wss://poc2.phala.network/ws" 
 }
