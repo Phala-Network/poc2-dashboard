@@ -15,18 +15,14 @@ export function query_gatekeeper(controller: string): any {
   return mysql_js.execute(sql);
 }
 
-export function insert_gatekeeper(node_name: string, controller: string) {
+export function insert_gatekeeper(controller: string, stash: string): boolean {
   let result = query_gatekeeper(controller);
-  let deleted = false;
-  if (result.length > 0 && result[0].node_name != node_name) {
-    mysql_js.execute("delete from kanban.gatekeeper where controller = \"" + controller + "\"");
-    deleted = true;
+  if (result.length == 0) {
+    const sql = "insert kanban.gatekeeper(controller, stash) values(\"" + controller + "\", \"" + stash +"\")";
+    return mysql_js.execute(sql) != null;
   }
 
-  if (result.length == 0 || deleted) {
-    const sql = "insert kanban.gatekeeper(node_name, controller) values(\"" + node_name + "\", \"" + controller +"\")";
-    mysql_js.execute(sql);
-  }
+  return true;
 }
 
 export function update_stash(controller: string, stash: string) {
@@ -73,7 +69,7 @@ export function query_node_name_by_controller(controller: string): string {
   return null;
 }
 
-export function update_gatekeeper_eras_and_slash(controller: string) {
+export function update_gatekeeper_and_slash_eras(controller: string) {
   let sql = "select count(*) as count from kanban.gatekeeper_era_history where controller = \"" + controller + "\"";
   const result = mysql_js.execute(sql);
 
@@ -114,4 +110,14 @@ export function clear_db() {
   sql = "delete from kanban.gatekeeper_era_history"; 
   console.log(sql);
   mysql_js.execute(sql);
+}
+
+//new feature 
+export function get_telemetry_controllers(): any {
+  const sql = "select controller from kanban.node where controller IS NOT null";
+  return mysql_js.execute(sql);
+}
+
+export function reset_tee_and_gatekeeper_flag() {
+  mysql_js.execute("update kanban.gatekeeper set is_tee = 0, is_gatekeeper = 0");
 }

@@ -19,8 +19,14 @@ export function insert_node(id: number, nodeDetails: any, nodeStats: any, locati
   let sql: any;
   if (result.length == 0) {
     //console.log("insert node...");
-    sql = "insert into kanban.node(node_id, node_name, node_impl, node_version, peer_count, city, timestamp, created_or_updated, online) ";
-    sql += "values(" + id.toString() + ", \"" + node_name + "\", \"" + node_impl + "\", \"" + node_version + "\", " + peer_count + ", \"" + city + "\", " + (connectedAt/1000).toString() + ", " + now.toString() +", 1)";
+    let controller = node_name.split('|').slice(-1)[0].trim();
+    if (controller != node_name.split('|')[0].trim() && controller.length == 48 && controller.startsWith('5')) {
+      sql = "insert into kanban.node(node_id, node_name, node_impl, node_version, peer_count, city, timestamp, created_or_updated, online, controller) ";
+      sql += "values(" + id.toString() + ", \"" + node_name + "\", \"" + node_impl + "\", \"" + node_version + "\", " + peer_count + ", \"" + city + "\", " + (connectedAt/1000).toString() + ", " + now.toString() +", 1, \"" + controller + "\")";
+    } else {
+      sql = "insert into kanban.node(node_id, node_name, node_impl, node_version, peer_count, city, timestamp, created_or_updated, online) ";
+      sql += "values(" + id.toString() + ", \"" + node_name + "\", \"" + node_impl + "\", \"" + node_version + "\", " + peer_count + ", \"" + city + "\", " + (connectedAt/1000).toString() + ", " + now.toString() +", 1)";
+    }
     let ret = mysql_js.execute(sql);
     if (ret) {
       insert_online(node_name, 1, connectedAt/1000, now);

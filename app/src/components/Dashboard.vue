@@ -22,19 +22,19 @@
       <div class="data-table">
         <div class="tbody">
           <div v-for="item in filteredData" v-bind:key="item.id" class="tr">
-            <div class="td td-status" v-bind:class="{ 'td td-status-offline': item.online === 0 }">{{ item.online === 1 ? "Online":"Offline" }}</div>
-            <div class="td td-role">
+            <div class="td td-status" v-bind:class="{ 'td td-status-offline': item.online === 0 || item.online == null, 'td-v td-status': item.online === 1 && item.id == null }">{{ item.online === 1 ? "Online":"Offline" }}</div>
+            <div class="td td-role" v-bind:class="{ 'td-v td-role': item.id == null }">
               <span v-if="item.is_gatekeeper">{{ "Gk" }}</span>
               <span v-else-if="item.is_tee && !item.is_gatekeeper">{{ "TEE" }}</span>
               <span v-else>{{ "Node" }}</span>
             </div>
-            <div class="td td-name">{{ item.node_name }}</div>
-            <div class="td td-account">{{ item.controller?item.controller:"" }}</div>
-            <div class="td td-city">{{ item.city }}</div>
-            <div class="td td-num">{{ item.node_eras?item.node_eras:0 }}</div>
-            <div class="td td-num">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</div>
-            <div class="td td-num">{{ item.slash_eras?item.slash_eras:0 }}</div>
-            <div class="td td-timestamp">{{ get_date_str(item.timestamp) }}</div>
+            <div class="td td-name" v-bind:class="{ 'td-v td-name': item.id == null }">{{ item.node_name }}</div>
+            <div class="td td-account" v-bind:class="{ 'td-v td-account-v': item.id == null }">{{ item.controller?item.controller:"" }}</div>
+            <div class="td td-city" v-bind:class="{ 'td-v td-city': item.id == null }">{{ item.city }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.node_eras?item.node_eras:0 }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.slash_eras?item.slash_eras:0 }}</div>
+            <div class="td td-timestamp" v-bind:class="{ 'td-v td-timestamp': item.id == null }">{{ get_date_str(item.timestamp) }}</div>
           </div>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default {
 
       if (that.disp_offline) {
         for (let i in data) {
-          if (data[i].online === 0) {
+          if (data[i].online === 0 || data[i].online == null) {
             tmp.push(data[i])
           }
         }
@@ -139,20 +139,18 @@ export default {
       }
 
       for (let i in data) {
-        let nodeNname = data[i].node_name
-        let controller = nodeNname.split('|').slice(-1)[0].trim()
-        if (controller !== nodeNname.split('|')[0].trim() && controller.length === 48 && controller.startsWith('5')) {
-          controller = controller.slice(0, 10) + '...' + controller.slice(-8)
-          nodeNname = nodeNname.slice(0, nodeNname.length - 48) + controller
-
-          data[i].node_name = nodeNname
-          data[i].controller = controller
+        if (data.id == null) {
+          data[i].controller = data[i].b_controller
         }
       }
       that.filteredData = data
     },
 
     get_date_str: function (timestamp) {
+      if (timestamp === null || timestamp.length === 0) {
+        return ''
+      }
+
       return new Date(timestamp * 1000).toLocaleString('en-US')
     }
   },
@@ -333,6 +331,12 @@ export default {
           text-align: left;
         }
 
+        .td-v {
+          flex: 1;
+          color: #54eb0e;
+          text-align: left;
+        }
+
         .td-status {
           width: 60px;
           flex: none;
@@ -363,6 +367,18 @@ export default {
           margin-left: 10px;
           flex: none;
           color: rgb(129, 220, 243);
+          text-decoration: none;
+          &:hover {
+            cursor: pointer;
+          }
+        }
+
+        .td-account-v {
+          overflow: hidden;
+          width: 200px;
+          margin-left: 10px;
+          flex: none;
+          color: #54eb0e;
           text-decoration: none;
           &:hover {
             cursor: pointer;

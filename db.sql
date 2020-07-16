@@ -10,6 +10,7 @@ CREATE TABLE `node` (
   `online` tinyint(4) NOT NULL,
   `created_or_updated` int(11) NOT NULL,
   `node_eras` int(11) NOT NULL DEFAULT '0',
+  `controller` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `node_name_UNIQUE` (`node_name`)

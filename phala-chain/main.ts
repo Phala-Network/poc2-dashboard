@@ -14,6 +14,8 @@ const loadConfig = (configPath: string) => {
   return JSON.parse(conf);
 };
 
+const SLEEP = 5 * 60;
+
 const main = async (cmd: Command) => {
   if (cmd.init !== undefined) {
     Mysql.clear_db();
@@ -27,7 +29,7 @@ const main = async (cmd: Command) => {
   const registry = new TypeRegistry();
   registry.register({"SequenceType": "u32"});
 
-  console.log("connecting ws rpc server(" + config.ws_rpc + ")...");
+  console.log("connecting ws rpc server at " + config.ws_rpc + " ...");
   const api = await ApiPromise.create({ provider: wsProvider, registry});
   console.log("api is ready.");
 
@@ -37,92 +39,77 @@ const main = async (cmd: Command) => {
   while (true) { //main loop
 
     // node eras
-    console.log("set node eras \n");
+    console.log("\nset node eras");
     set_node_eras(era_duration);
 
-    const controllers = init_gatekeepers();
-    console.log('controllers:', controllers);
-    
-    // read machine_id and TEE score from chain
-    await set_tee(api, controllers);
-
     // set stash and gatekeeper
-    const current_era = await set_gatekeeper(api, controllers);
+    const current_era = parseInt((await api.query.staking.currentEra()).toString());
     console.log('current era:', current_era);
 
+    console.log("\nset gatekeeper")
+    const controllers = await set_gatekeeper_of_staking(api);
+    
+    console.log("\nset telemetry gatekeeper");
+    set_gatekeeper_of_telemetry(api, controllers);
+
     // gatekeeper slash
+    console.log("\nset gatekeeper slash")
     set_gatekeeper_slash(api, controllers, current_era);
 
     // set gatekeeper eras and slash
-    set_gatekeeper_eras_and_slash(controllers);
+    console.log("\nset gatekeeper and slash eras")
+    set_gatekeeper_and_slash_eras(controllers);
 
-    await sleep(5 * 60 * 1000);
+    console.log("\nsleep " + SLEEP.toString() + " seconds ...");
+    await sleep(SLEEP * 1000);
   }
 }
 
-function init_gatekeepers(): string[] {
+async function set_gatekeeper_of_staking(api: ApiPromise): Promise<string[]> {
+  // gatekeeper
+  const staking_overview = await api.derive.staking.overview();
+  //console.log("staking_overview:", JSON.stringify(staking_overview));
+  const current_era: number = parseInt(staking_overview.currentEra.toString());
+  const validators = staking_overview.validators;
   let controllers = [];
-  const nodes = Mysql.query_all_nodes();
-  for (let i in nodes) {
-    let node_name = nodes[i].node_name;
-    let controller = node_name.split('|').slice(-1)[0].trim();
-    if (controller != node_name.split('|')[0].trim() && controller.length == 48 && controller.startsWith('5')) {
-      Mysql.insert_gatekeeper(node_name, controller);
-      controllers.push(controller);
+  for (let index = 0; index < validators.length; index++) {
+    let stash = validators[index];
+    let controller = await api.query.staking.bonded(stash);
+    let insert_ok = false;
+    if (controller.isSome)
+      insert_ok = Mysql.insert_gatekeeper(controller.unwrap().toString(), stash.toString());
+      
+    if (insert_ok) {
+      Mysql.insert_gatekeeper_era(current_era, controller.unwrap().toString(), stash.toString());
+
+      controllers.push(controller.unwrap().toString());
+    } else {
+      console.log("failed to insert gatekeeper:", controller);
     }
   }
 
   return controllers;
 }
 
-async function set_tee(api: ApiPromise, controllers: string[]) {
-  for (let i in controllers) {
-    const machine_id = (await api.query.phalaModule.miner(controllers[i])).toString();
-    const isTee = machine_id.startsWith('0x') && machine_id.length > 2;
-    Mysql.update_isTee(controllers[i], isTee);
-    if (!isTee) {
-      Mysql.update_isGatekeeper(controllers[i], false);
-    }
-
-    //if (isTee) {
-    //  const machine = await api.query.phalaModule.machine(machine_id);
-    //  const score = parseInt(JSON.stringify(machine[1]));
-    //  Mysql.update_tee_score(controllers[i], score); 
-    //}
-  }
-}
-
-async function set_gatekeeper(api: ApiPromise, controllers: string[]): Promise<number> {
-  // update stash
-  let stashes: any = [];
-  let stash_dict: any = {};
-  for (let i in controllers) {
-    const ledger = await api.query.staking.ledger(controllers[i]);
+async function set_gatekeeper_of_telemetry(api: ApiPromise, controllers: string[]) {
+  let telemetry_controllers = Mysql.get_telemetry_controllers();
+  Mysql.reset_tee_and_gatekeeper_flag();
+  for (let i in telemetry_controllers) {
+    let controller = telemetry_controllers[i].controller;
+    const ledger = await api.query.staking.ledger(controller);
     //console.log(JSON.stringify(ledger));
     if (ledger && ledger.isSome) {
       let stash = ledger.unwrap().stash;
-      Mysql.update_stash(controllers[i], stash.toString());
-      stashes.push(stash);
-      stash_dict[stash.toString()] = controllers[i]
+      Mysql.insert_gatekeeper(controller, stash.toString());
     }
+
+    const machine_id = (await api.query.phalaModule.miner(controller)).toString();
+    const isTee = machine_id.startsWith('0x') && machine_id.length > 2;
+    Mysql.update_isTee(controller, isTee);
+    
+    const isGateKeepr = controllers.includes(controller);
+    Mysql.update_isGatekeeper(controller, isTee && isGateKeepr);
   }
-
-  if (stashes.length == 0) return 0;
-
-  // gatekeeper
-  const staking_overview = await api.derive.staking.overview();
-  const current_era: number = parseInt(staking_overview.currentEra.toString());
-  const validators = staking_overview.validators;
-  for (let i in stashes) {
-    const isGateKeepr = validators.includes(stashes[i]);
-    let controller = stash_dict[stashes[i].toString()];
-    Mysql.update_isGatekeeper(controller, isGateKeepr);
-    if (isGateKeepr) {
-      Mysql.insert_gatekeeper_era(current_era, controller, stashes[i]);
-    }
-  }
-
-  return current_era;
 }
 
 async function set_gatekeeper_slash(api: ApiPromise, controllers: string[], current_era) {
@@ -138,9 +125,9 @@ async function set_gatekeeper_slash(api: ApiPromise, controllers: string[], curr
   }
 }
 
-function set_gatekeeper_eras_and_slash(controllers: string[]) {
+function set_gatekeeper_and_slash_eras(controllers: string[]) {
   for (let i in controllers) {
-    Mysql.update_gatekeeper_eras_and_slash(controllers[i]);
+    Mysql.update_gatekeeper_and_slash_eras(controllers[i]);
   }
 }
 
