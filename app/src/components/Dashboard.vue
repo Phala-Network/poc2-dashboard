@@ -26,12 +26,13 @@
             <div class="td td-role" v-bind:class="{ 'td-v td-role': item.id == null }">
               <span v-if="item.is_gatekeeper">{{ "Gk" }}</span>
               <span v-else-if="item.is_tee && !item.is_gatekeeper">{{ "TEE" }}</span>
-              <span v-else>{{ "Node" }}</span>
+              <span v-else-if="item.id != null">{{ "Node" }}</span>
+              <span v-else>{{ "" }}</span>
             </div>
             <div class="td td-name" v-bind:class="{ 'td-v td-name': item.id == null }">{{ item.node_name }}</div>
             <div class="td td-account" v-bind:class="{ 'td-v td-account-v': item.id == null }">{{ item.controller?item.controller:"" }}</div>
             <div class="td td-city" v-bind:class="{ 'td-v td-city': item.id == null }">{{ item.city }}</div>
-            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.node_eras?item.node_eras:0 }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.node_eras?item.node_eras:"" }}</div>
             <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</div>
             <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.slash_eras?item.slash_eras:0 }}</div>
             <div class="td td-timestamp" v-bind:class="{ 'td-v td-timestamp': item.id == null }">{{ get_date_str(item.timestamp) }}</div>
