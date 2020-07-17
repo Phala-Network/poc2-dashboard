@@ -13,7 +13,7 @@
         <div class="data-tab tab-name ">Node Name</div>
         <div class="data-tab tab-account">Phala Address</div>
         <div class="data-tab tab-city">City</div>
-        <div class="data-tab tab-era">Node Eras</div>
+        <div class="data-tab tab-era">Online Eras</div>
         <div class="data-tab tab-era">Gatekeeper Eras</div>
         <div class="data-tab tab-era">Slashed Eras</div>
         <div class="data-tab tab-time">Connect at</div>
@@ -32,9 +32,9 @@
             <div class="td td-name" v-bind:class="{ 'td-v td-name': item.id == null }">{{ item.node_name }}</div>
             <div class="td td-account" v-bind:class="{ 'td-v td-account-v': item.id == null }">{{ item.controller?item.controller:"" }}</div>
             <div class="td td-city" v-bind:class="{ 'td-v td-city': item.id == null }">{{ item.city }}</div>
-            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.node_eras?item.node_eras:"" }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.node_eras>=0?item.node_eras:"" }}</div>
             <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</div>
-            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null }">{{ item.slash_eras?item.slash_eras:0 }}</div>
+            <div class="td td-num" v-bind:class="{ 'td-v td-num': item.id == null, 'td td-num-alert': item.slash_eras > 0 }">{{ item.slash_eras?item.slash_eras:0 }}</div>
             <div class="td td-timestamp" v-bind:class="{ 'td-v td-timestamp': item.id == null }">{{ get_date_str(item.timestamp) }}</div>
           </div>
         </div>
@@ -346,7 +346,7 @@ export default {
         .td-status-offline {
           width: 60px;
           flex: none;
-          color: rgb(226, 76, 76);
+          color: rgb(250, 20, 20);
         }
 
         .td-role {
@@ -397,6 +397,13 @@ export default {
           text-align: center;
           width:105px;
           flex: none;
+        }
+
+        .td-num-alert {
+          text-align: center;
+          width:105px;
+          flex: none;
+          color: rgb(255, 20, 20);
         }
 
         .td-timestamp {
