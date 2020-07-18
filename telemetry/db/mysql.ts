@@ -64,6 +64,14 @@ export function mark_node_offlined(node_name: string) {
   }
 }
 
+export function mark_node_offlined_ex(interval: number) {
+  let sql = "select node_name from kanban.node where online = 1 and created_or_updated < " + (new Date().getTime()/1000 - interval).toString();
+  let result = mysql_js.execute(sql);
+  for (let i in result) {
+    mark_node_offlined(result[i].node_name);
+  }
+}
+
 function insert_online(node_name: string, status: number, connect_at: number, now: number) {
   let result = mysql_js.execute("select * from kanban.online where node_name = \"" + node_name + "\" order by id desc");
   if (result.length == 0 && status == 1 || result[0].online != status) {
