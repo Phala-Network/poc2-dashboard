@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import program, { Command } from "commander";
+import * as cp from "child_process";
 
 import TelemetryClient from "./telemetry";
 import * as Mysql from "./db/mysql";
@@ -29,6 +30,9 @@ const main = async (cmd: Command) => {
 
     const hb = Mysql.get_heartbeat();
     if (hb == 0 || new Date().getTime() / 1000 - hb > 20 * 60) { // 20 minutes no response, send email
+      const output = cp.execSync('sudo systemctl restart phala-chain', { encoding: 'utf-8' });
+      console.log('restart phala-chain service: ', output);
+  
       console.log("Send email ...");
       await Nodemailer.send_mail();
     }

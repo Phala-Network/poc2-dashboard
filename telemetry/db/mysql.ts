@@ -75,10 +75,10 @@ function insert_online(node_name: string, status: number, connect_at: number, no
 export function clear_db() {
   let sql = "delete from kanban.node";
   console.log(sql);
-  mysql_js.execute("delete from kanban.node");
+  mysql_js.execute(sql);
   sql = "delete from kanban.online";
   console.log(sql);
-  mysql_js.execute("delete from kanban.online");
+  mysql_js.execute(sql);
 }
 
 export function delete_last_offline_record(node_name: string) {
@@ -99,7 +99,7 @@ export function delete_last_online_record(node_name: string) {
 export function get_heartbeat(): number {
   let result = mysql_js.execute("select value1 from kanban.dict where key1 = 'heartbeat'");
   if (result.length > 0) {
-    let last_ms = parseInt(result[0].value);
+    let last_ms = parseInt(result[0].value1);
     if (isNaN(last_ms)) return 0;
     return last_ms;
   }
