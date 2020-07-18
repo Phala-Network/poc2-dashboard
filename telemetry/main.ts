@@ -3,6 +3,7 @@ import program, { Command } from "commander";
 
 import TelemetryClient from "./telemetry";
 import * as Mysql from "./db/mysql";
+import * as Nodemailer from "./send_mail.js";
 
 const loadConfig = (configPath: string) => {
   let conf = fs.readFileSync(configPath, { encoding: "utf-8" });
@@ -25,6 +26,13 @@ const main = async (cmd: Command) => {
     const telemetry = new TelemetryClient(config);
     telemetry.start();
     await sleep(10 * 60 * 1000);
+
+    const hb = Mysql.get_heartbeat();
+    if (hb == 0 || new Date().getTime() / 1000 - hb > 20 * 60) { // 20 minutes no response, send email
+      console.log("Send email ...");
+      await Nodemailer.send_mail();
+    }
+
     telemetry.close();
   }
 }

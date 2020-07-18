@@ -49,3 +49,11 @@ CREATE TABLE `gatekeeper_era_history` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `dict` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key1` varchar(30) NOT NULL,
+  `value1` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

@@ -94,3 +94,15 @@ export function delete_last_online_record(node_name: string) {
     mysql_js.execute("delete from kanban.online where id=" + result[0].id);
   }
 }
+
+//heartbeat
+export function get_heartbeat(): number {
+  let result = mysql_js.execute("select value1 from kanban.dict where key1 = 'heartbeat'");
+  if (result.length > 0) {
+    let last_ms = parseInt(result[0].value);
+    if (isNaN(last_ms)) return 0;
+    return last_ms;
+  }
+
+  return 0;
+}

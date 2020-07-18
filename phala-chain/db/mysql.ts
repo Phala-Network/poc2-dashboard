@@ -121,3 +121,17 @@ export function get_telemetry_controllers(): any {
 export function reset_tee_and_gatekeeper_flag() {
   mysql_js.execute("update kanban.gatekeeper set is_tee = 0, is_gatekeeper = 0");
 }
+
+//heartbeat
+export function set_heartbeat() {
+  const now = (new Date().getTime()/1000).toString();
+  let sql = "select value1 from kanban.dict where key1 = 'heartbeat'";
+  let result = mysql_js.execute(sql);
+  if (result.length == 0) {
+    sql = "insert kanban.dict(key1, value1) values('heartbeat', \"" + now +"\")";
+  } else {
+    sql = "update kanban.dict set value1 = \"" + now +"\" where key1 = 'heartbeat'";
+  }
+
+  mysql_js.execute(sql);
+}

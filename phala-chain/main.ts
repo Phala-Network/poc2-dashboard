@@ -60,6 +60,8 @@ const main = async (cmd: Command) => {
     console.log("\nset gatekeeper and slash eras")
     set_gatekeeper_and_slash_eras(controllers);
 
+    Mysql.set_heartbeat();
+    
     console.log("\nsleep " + SLEEP.toString() + " seconds ...");
     await sleep(SLEEP * 1000);
   }
