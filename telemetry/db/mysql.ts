@@ -74,6 +74,12 @@ export function mark_node_offlined_ex(interval: number) {
 
 function insert_online(node_name: string, status: number, connect_at: number, now: number) {
   let result = mysql_js.execute("select * from kanban.online where node_name = \"" + node_name + "\" order by id desc");
+  if (result.length > 0 && status == 1 && result[0].online == 0 && result[0].connect_at > connect_at) {
+    delete_last_offline_record(node_name);
+
+    return;
+  }
+
   if (result.length == 0 && status == 1 || result[0].online != status) {
     let sql = "insert kanban.online(node_name, online, timestamp, connect_at) values(\"" + node_name + "\", " + status.toString() + ", " + now.toString() + ", " + connect_at.toString() + ")";
     mysql_js.execute(sql);

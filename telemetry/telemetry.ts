@@ -44,7 +44,7 @@ export default class TelemetryClient {
           this._subscribe(chain);
         }
 
-        Mysql.mark_node_offlined_ex(REPORT_INTERVAL * 2);
+        Mysql.mark_node_offlined_ex(REPORT_INTERVAL * 3);
 
         resolve();
       };
