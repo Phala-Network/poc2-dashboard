@@ -163,14 +163,14 @@ export default {
       return new Date(timestamp * 1000).toLocaleString('en-US')
     },
 
-    name_components(item) {
+    name_components (item) {
       if (!item.node_name) {
         return ['', '']
       }
-      const components = item.node_name.split('|').filter(x => !!x.trim());
+      const components = item.node_name.split('|').filter(x => !!x.trim())
       if (components.length < 1) {
         return ['', '']
-      } else if (components.length == 1) {
+      } else if (components.length === 1) {
         return [components[0], '']
       } else {
         return [components[0], components[1]]
@@ -180,11 +180,13 @@ export default {
 
   mounted () {
     const that = this
-    const test = true
+    const test = false
+    // https://poc2-dashboard.phala.network/nodes
+    const apiUrl = '/nodes'
     const fetchData = function () {
       if (!test) {
         const now = new Date().getTime() / 1000
-        that.$http.get('/nodes').then((res) => {
+        that.$http.get(apiUrl).then((res) => {
           if (res.data.status === 'ok') {
             // filter nodes in offline for 1 era (6 hours)
             const tmp = res.data.result
@@ -257,7 +259,7 @@ export default {
     table {
       width: 100%;
 
-      td:nth-child(1) { width: 10%; }
+      td:nth-child(1) { width: 7%; }
       td:nth-child(2) { width: 5%; }
       td:nth-child(3) { width: 20%; }
       td:nth-child(4) { width: 40%; }
