@@ -50,11 +50,11 @@ const main = async (cmd: Command) => {
     const controllers = await set_gatekeeper_of_staking(api);
     
     console.log("\nset telemetry gatekeeper");
-    set_gatekeeper_of_telemetry(api, controllers);
+    await set_gatekeeper_of_telemetry(api, controllers);
 
     // gatekeeper slash
     console.log("\nset gatekeeper slash")
-    set_gatekeeper_slash(api, controllers, current_era);
+    await set_gatekeeper_slash(api, controllers, current_era);
 
     // set gatekeeper eras and slash
     console.log("\nset gatekeeper and slash eras")
