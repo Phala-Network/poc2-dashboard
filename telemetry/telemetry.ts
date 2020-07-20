@@ -114,8 +114,8 @@ export default class TelemetryClient {
               break;
             }
             if (last_online == 1 && last_id != id) {
-              logger.info(`Duplicated id for ${nodeName}, skip`);
-              break;
+              logger.info(`Duplicated id for ${nodeName}`);
+              //break;
             }
             if (last_online == 1 && now - last_now < REPORT_INTERVAL) {
               logger.info(`Reporting ONLINE in ${REPORT_INTERVAL} seconds for ${nodeName}, skip`);
@@ -148,7 +148,7 @@ export default class TelemetryClient {
               if (last_online == 1 && now - last_now < STATUS_CHANGED_INTERVAL) {
                 logger.info(`Deleting ${nodeName} last ONLINE record`);
                 Mysql.delete_last_online_record(nodeName);
-                break;
+                //break;
               }
             }
             Mysql.mark_node_offlined(nodeName);
