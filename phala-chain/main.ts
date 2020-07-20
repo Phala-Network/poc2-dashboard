@@ -15,6 +15,7 @@ const loadConfig = (configPath: string) => {
 };
 
 const SLEEP = 5 * 60;
+const START_POC2 = 1595239200; //2020-7-20 18:00:00
 
 const main = async (cmd: Command) => {
   if (cmd.init !== undefined) {
@@ -156,6 +157,8 @@ function calculate_node_online_time(node_name: string): number {
     if (online) {
       while (index + 1 < total_hist && online_hist[index+1].online == 1) index++;
       let end_second = online_hist[index].connect_at;
+      if (end_second < START_POC2)
+        end_second = START_POC2;
       if (start_second - end_second > 0)
         total_online_second += (start_second - end_second);
       online = false;
