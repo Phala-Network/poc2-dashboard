@@ -3,7 +3,7 @@ import program, { Command } from "commander";
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { TypeRegistry } from '@polkadot/types';
-
+import { decodeAddress } from '@polkadot/util-crypto';
 import * as Mysql from './db/mysql';
 
 const loadConfig = (configPath: string) => {
@@ -99,6 +99,12 @@ async function set_gatekeeper_of_telemetry(api: ApiPromise, controllers: string[
   Mysql.reset_tee_and_gatekeeper_flag();
   for (let i in telemetry_controllers) {
     let controller = telemetry_controllers[i].controller;
+    try {
+      decodeAddress(controller);
+    } catch(err) {
+      console.log('wrong address:' + controller);
+      continue;
+    }
     const ledger = await api.query.staking.ledger(controller);
     //console.log(JSON.stringify(ledger));
     if (ledger && ledger.isSome) {
@@ -138,7 +144,7 @@ function set_node_eras(era_duration: number) {
   const nodes = Mysql.query_all_nodes();
   for (let i in nodes) {
     const node_name = nodes[i].node_name;
-    const online_eras = calculate_node_online_time(node_name) / era_duration;
+    const online_eras = Math.floor(calculate_node_online_time(node_name) / era_duration);
     Mysql.set_node_eras(node_name, online_eras);
   }
 }
