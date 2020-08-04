@@ -20,7 +20,8 @@
             <th class="data-tab tab-era">Gatekeeper Eras</th>
             <th class="data-tab tab-era">Slashed Eras</th>
             <th v-if="false" class="data-tab tab-time">Connect at</th>
-            <th>Points Est</th>
+            <th>Node Points</th>
+            <th>GK Points</th>
           </tr>
         </thead>
         <tbody>
@@ -43,7 +44,8 @@
             <td class="text-center" v-bind:class="{ 'text-hilight td-num': item.id == null }">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</td>
             <td class="text-center" v-bind:class="{ 'text-hilight td-num': item.id == null, 'text-alert': item.slash_eras > 0 }">{{ item.slash_eras?item.slash_eras:0 }}</td>
             <td v-if="false" class="td-timestamp" v-bind:class="{ 'text-hilight td-timestamp': item.id == null }">{{ get_date_str(item.timestamp) }}</td>
-            <td class="text-center">-</td>
+            <td class="text-center">{{node_points(item)}}<br>{{node_points_perc(item)}}</td>
+            <td class="text-center">{{gk_points(item)}}<br>{{gk_points_perc(item)}}</td>
           </tr>
         </tbody>
       </table>
@@ -65,7 +67,56 @@ export default {
     }
   },
 
+  computed: {
+    all_node_points () {
+      return this.filteredData
+        .filter(item => item.controller || this.name_components(item)[1])
+        .map(item => this.node_points(item))
+        .reduce((x, a) => a + x, 0)
+    },
+    all_gk_points () {
+      return this.filteredData
+        .filter(item => item.controller || this.name_components(item)[1])
+        .map(item => this.gk_points(item))
+        .reduce((x, a) => a + x, 0)
+    }
+  },
+
   methods: {
+    node_points (item) {
+      const n = item.node_eras
+      if (n >= 84) {
+        return 200 + 20 * n
+      } else if (n >= 56) {
+        return 200 + 15 * n
+      } else if (n >= 28) {
+        return 200 + 10 * n
+      } else if (n > 0) {
+        return 200
+      } else {
+        return 0
+      }
+    },
+    gk_points (item) {
+      return (
+        (item.gatekeeper_eras > 0 ? 200 : 0) +
+        (item.gatekeeper_eras >= 28 && item.slash_eras === 0 ? 500 : 0) +
+        (item.gatekeeper_eras >= 80 ? 700 : 0))
+    },
+    node_points_perc (item) {
+      const full = this.all_node_points
+      if (!full || (!item.controller && !this.name_components(item)[1])) return ''
+      const myself = this.node_points(item)
+      const percent = (myself / full * 100).toFixed(2)
+      return `${percent}%`
+    },
+    gk_points_perc (item) {
+      const full = this.all_gk_points
+      if (!full || (!item.controller && !this.name_components(item)[1])) return ''
+      const myself = this.gk_points(item)
+      const percent = (myself / full * 100).toFixed(2)
+      return `${percent}%`
+    },
     set_tee: function () {
       this.disp_tee = !this.disp_tee
       if (this.disp_tee) {
@@ -261,7 +312,7 @@ export default {
 
       td:nth-child(1) { width: 7%; }
       td:nth-child(2) { width: 5%; }
-      td:nth-child(3) { width: 20%; }
+      td:nth-child(3) { width: 20%; max-width: 180px; }
       td:nth-child(4) { width: 40%; }
       td:nth-child(5) { width: 5%; }
       td:nth-child(6) { width: 5%; }
