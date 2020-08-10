@@ -69,13 +69,13 @@ export default {
 
   computed: {
     all_node_points () {
-      return this.filteredData
+      return this.nodeData
         .filter(item => item.controller || this.name_components(item)[1])
         .map(item => this.node_points(item))
         .reduce((x, a) => a + x, 0)
     },
     all_gk_points () {
-      return this.filteredData
+      return this.nodeData
         .filter(item => item.controller || this.name_components(item)[1])
         .map(item => this.gk_points(item))
         .reduce((x, a) => a + x, 0)
@@ -243,9 +243,9 @@ export default {
             const tmp = res.data.result
             that.nodeData = []
             for (let i in tmp) {
-              // if (tmp[i].online === 0 && now - tmp[i].created_or_updated > 6 * 3600) {
-              //   continue
-              // }
+              if (!tmp.controller) {
+                tmp.controller = tmp.b_controller
+              }
               that.nodeData.push(tmp[i])
             }
 
