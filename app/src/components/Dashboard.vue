@@ -246,6 +246,7 @@ export default {
               if (!tmp.controller) {
                 tmp.controller = tmp.b_controller
               }
+              tmp[i].slash_eras = Math.max((tmp[i].slash_eras || 0) - 2, 0)
               that.nodeData.push(tmp[i])
             }
 
