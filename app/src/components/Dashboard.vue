@@ -236,16 +236,16 @@ export default {
     const apiUrl = '/nodes'
     const fetchData = function () {
       if (!test) {
-        const now = new Date().getTime() / 1000
+        // const now = new Date().getTime() / 1000
         that.$http.get(apiUrl).then((res) => {
           if (res.data.status === 'ok') {
             // filter nodes in offline for 1 era (6 hours)
             const tmp = res.data.result
             that.nodeData = []
             for (let i in tmp) {
-              if (tmp[i].online === 0 && now - tmp[i].created_or_updated > 6 * 3600) {
-                continue
-              }
+              // if (tmp[i].online === 0 && now - tmp[i].created_or_updated > 6 * 3600) {
+              //   continue
+              // }
               that.nodeData.push(tmp[i])
             }
 
