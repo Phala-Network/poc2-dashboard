@@ -22,6 +22,8 @@
             <th v-if="false" class="data-tab tab-time">Connect at</th>
             <th>Node Points</th>
             <th>GK Points</th>
+            <th>node%</th>
+            <th>gk%</th>
           </tr>
         </thead>
         <tbody>
@@ -44,8 +46,10 @@
             <td class="text-center" v-bind:class="{ 'text-hilight td-num': item.id == null }">{{ item.gatekeeper_eras?item.gatekeeper_eras:0 }}</td>
             <td class="text-center" v-bind:class="{ 'text-hilight td-num': item.id == null, 'text-alert': item.slash_eras > 0 }">{{ item.slash_eras?item.slash_eras:0 }}</td>
             <td v-if="false" class="td-timestamp" v-bind:class="{ 'text-hilight td-timestamp': item.id == null }">{{ get_date_str(item.timestamp) }}</td>
-            <td class="text-center">{{node_points(item)}}<br>{{node_points_perc(item)}}</td>
-            <td class="text-center">{{gk_points(item)}}<br>{{gk_points_perc(item)}}</td>
+            <td class="text-center">{{node_points(item)}}</td>
+            <td class="text-center">{{gk_points(item)}}</td>
+            <td class="text-center">{{node_points_perc(item)}}</td>
+            <td class="text-center">{{gk_points_perc(item)}}</td>
           </tr>
         </tbody>
       </table>
@@ -98,6 +102,7 @@ export default {
       }
     },
     gk_points (item) {
+      if (!item.first) return 0
       return (
         (item.gatekeeper_eras > 0 ? 200 : 0) +
         (item.gatekeeper_eras >= 28 && item.slash_eras === 0 ? 500 : 0) +
@@ -232,21 +237,23 @@ export default {
   mounted () {
     const that = this
     const test = false
-    // https://poc2-dashboard.phala.network/nodes
-    const apiUrl = '/nodes'
     const fetchData = function () {
       if (!test) {
-        // const now = new Date().getTime() / 1000
-        that.$http.get(apiUrl).then((res) => {
+        // https://poc2-dashboard.phala.network/nodes
+        that.$http.get('https://poc2-dashboard.phala.network/nodes').then((res) => {
           if (res.data.status === 'ok') {
             // filter nodes in offline for 1 era (6 hours)
             const tmp = res.data.result
             that.nodeData = []
+            const seen = {}
             for (let i in tmp) {
-              if (!tmp.controller) {
-                tmp.controller = tmp.b_controller
+              if (!tmp[i].controller) {
+                tmp[i].controller = tmp[i].b_controller
               }
+              const first = !seen[tmp[i].controller]
+              seen[tmp[i].controller] = true
               tmp[i].slash_eras = Math.max((tmp[i].slash_eras || 0) - 2, 0)
+              tmp[i].first = first
               that.nodeData.push(tmp[i])
             }
 
